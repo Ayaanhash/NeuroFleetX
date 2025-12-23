@@ -1,4 +1,6 @@
 // src/pages/Register.js
+import { API_BASE_URL } from "../config";
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/services';

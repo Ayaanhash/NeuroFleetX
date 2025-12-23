@@ -1,151 +1,57 @@
-// src/services/services.js
-import { setUser, clearUser } from '../utils/authUtils';
+import axios from "axios";
+import { setUser, clearUser } from "../utils/authUtils";
 
-const REGISTERED_USER_KEY = 'nf_registered_user';
+const API_BASE = "http://localhost:8081/api";
+
+/* ================= AUTH SERVICE ================= */
 
 export const authService = {
-  async register({ gender, role, email, password }) {
-    // Initial user data (other fields filled later in Profile)
-    const registeredUser = {
-      name: '',
-      dob: '',
-      phone: '',
-      travelPreferences: '',
-      location: '',
-      gender,
-      role,
+  async register({ email, password, role }) {
+    const res = await axios.post(`${API_BASE}/auth/register`, {
       email,
       password,
-    };
-
-    localStorage.setItem(REGISTERED_USER_KEY, JSON.stringify(registeredUser));
-    return { success: true };
+      role,
+    });
+    return res.data;
   },
 
   async login({ email, password }) {
-    const raw = localStorage.getItem(REGISTERED_USER_KEY);
-    if (!raw) {
-      throw new Error('No account found. Please register first.');
-    }
+    const res = await axios.post(`${API_BASE}/auth/login`, {
+      email,
+      password,
+    });
 
-    let registered;
-    try {
-      registered = JSON.parse(raw);
-    } catch {
-      throw new Error('Stored user data is invalid. Please register again.');
-    }
-
-    if (registered.email !== email || registered.password !== password) {
-      throw new Error('Invalid email or password.');
-    }
-
-    // Logged-in user object (used by dashboards & navbar)
-    const user = {
-      email: registered.email,
-      role: registered.role,
-      gender: registered.gender,
-      name: registered.name || registered.email.split('@')[0],
-    };
-
-    setUser(user);
-    return { user };
+    // backend should return user details
+    setUser(res.data.user);
+    return res.data;
   },
 
-  async logout() {
+  logout() {
     clearUser();
   },
 };
 
-// ========= PROFILE SERVICE =========
+/* ================= PROFILE SERVICE ================= */
 
 export const profileService = {
-  getProfile() {
-    const raw = localStorage.getItem(REGISTERED_USER_KEY);
-    if (!raw) return null;
-    try {
-      const stored = JSON.parse(raw);
-      return {
-        name: stored.name || '',
-        email: stored.email || '',
-        dob: stored.dob || '',
-        phone: stored.phone || '',
-        gender: stored.gender || '',
-        travelPreferences: stored.travelPreferences || '',
-        location: stored.location || '',
-        role: stored.role || '',
-      };
-    } catch {
-      return null;
-    }
+  async getProfile() {
+    const res = await axios.get(`${API_BASE}/profile`);
+    return res.data;
   },
 
-  updateProfile({ name, dob, phone, gender, travelPreferences, location }) {
-    const raw = localStorage.getItem(REGISTERED_USER_KEY);
-    if (!raw) {
-      throw new Error('No registered user found.');
-    }
-
-    const stored = JSON.parse(raw);
-    const updated = {
-      ...stored,
-      name: name ?? stored.name,
-      dob: dob ?? stored.dob,
-      phone: phone ?? stored.phone,
-      gender: gender ?? stored.gender,
-      travelPreferences: travelPreferences ?? stored.travelPreferences,
-      location: location ?? stored.location,
-    };
-
-    // update saved registration details
-    localStorage.setItem(REGISTERED_USER_KEY, JSON.stringify(updated));
-
-    // update current logged-in user (used in navbar etc.)
-    setUser({
-      email: updated.email,
-      role: updated.role,
-      gender: updated.gender,
-      name: updated.name || updated.email,
-    });
-
-    return {
-      success: true,
-      profile: {
-        name: updated.name,
-        email: updated.email,
-        dob: updated.dob,
-        phone: updated.phone,
-        gender: updated.gender,
-        travelPreferences: updated.travelPreferences,
-        location: updated.location,
-        role: updated.role,
-      },
-    };
+  async updateProfile(profileData) {
+    const res = await axios.put(`${API_BASE}/profile`, profileData);
+    return res.data;
   },
 
-  changePassword({ currentPassword, newPassword }) {
-    const raw = localStorage.getItem(REGISTERED_USER_KEY);
-    if (!raw) {
-      throw new Error('No registered user found.');
-    }
-
-    const stored = JSON.parse(raw);
-
-    if (stored.password !== currentPassword) {
-      throw new Error('Current password is incorrect.');
-    }
-
-    const updated = {
-      ...stored,
-      password: newPassword,
-    };
-
-    localStorage.setItem(REGISTERED_USER_KEY, JSON.stringify(updated));
-
-    return { success: true };
+  async changePassword(data) {
+    const res = await axios.put(`${API_BASE}/profile/password`, data);
+    return res.data;
   },
 };
 
-// ========= DASHBOARD DATA (demo) =========
+/* ================= DASHBOARD DATA ================= */
+/* (demo data – keep this for now) */
 
 export const dashboardService = {
   getAdminMetrics() {
@@ -158,6 +64,7 @@ export const dashboardService = {
       totalRevenue: 425000,
     });
   },
+
   getFleetManagerMetrics() {
     return Promise.resolve({
       activeVehicles: 32,
@@ -168,6 +75,7 @@ export const dashboardService = {
       weeklyRevenue: 72000,
     });
   },
+
   getDriverMetrics() {
     return Promise.resolve({
       todaysTrips: 6,
@@ -178,6 +86,7 @@ export const dashboardService = {
       acceptanceRate: 94,
     });
   },
+
   getCustomerMetrics() {
     return Promise.resolve({
       activeBookings: 1,

@@ -1,60 +1,55 @@
 // src/services/services.js
+import { API_BASE_URL } from "../config";
+
 import { setUser, clearUser } from '../utils/authUtils';
 
 const REGISTERED_USER_KEY = 'nf_registered_user';
-
 export const authService = {
   async register({ gender, role, email, password }) {
-    // Initial user data (other fields filled later in Profile)
-    const registeredUser = {
-      name: '',
-      dob: '',
-      phone: '',
-      travelPreferences: '',
-      location: '',
-      gender,
-      role,
-      email,
-      password,
-    };
+    const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        gender,
+        role,
+        email,
+        password,
+        confirmPassword: password
+      })
+    });
 
-    localStorage.setItem(REGISTERED_USER_KEY, JSON.stringify(registeredUser));
-    return { success: true };
+    if (!res.ok) {
+      throw new Error("Registration failed");
+    }
+
+    return res.json();
   },
 
   async login({ email, password }) {
-    const raw = localStorage.getItem(REGISTERED_USER_KEY);
-    if (!raw) {
-      throw new Error('No account found. Please register first.');
+    const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (!res.ok) {
+      throw new Error("Invalid credentials");
     }
 
-    let registered;
-    try {
-      registered = JSON.parse(raw);
-    } catch {
-      throw new Error('Stored user data is invalid. Please register again.');
-    }
-
-    if (registered.email !== email || registered.password !== password) {
-      throw new Error('Invalid email or password.');
-    }
-
-    // Logged-in user object (used by dashboards & navbar)
-    const user = {
-      email: registered.email,
-      role: registered.role,
-      gender: registered.gender,
-      name: registered.name || registered.email.split('@')[0],
-    };
-
+    const user = await res.json();
     setUser(user);
     return { user };
   },
 
   async logout() {
     clearUser();
-  },
+  }
 };
+
 
 // ========= PROFILE SERVICE =========
 
