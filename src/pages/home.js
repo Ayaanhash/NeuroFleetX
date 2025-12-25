@@ -1,4 +1,4 @@
-// src/pages/Home.js
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/auth.css';
@@ -8,7 +8,7 @@ const Home = () => {
 
   return (
     <div className="nf-site-wrapper">
-      {/* HEADER */}
+ 
       <header className="nf-site-header">
         <div className="nf-site-logo">
           <div className="nf-logo-icon">N</div>
@@ -31,9 +31,9 @@ const Home = () => {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
+   
       <main>
-        {/* HERO / HOME SECTION */}
+        
         <section id="home" className="nf-home-page">
           <div className="nf-home-hero">
             <div className="nf-home-text">
@@ -76,7 +76,7 @@ const Home = () => {
           </div>
         </section>
 
-        {/* ABOUT SECTION */}
+       
         <section id="about" className="nf-about-section">
           <div className="nf-about-card">
             <h2>About NeuroFleetX</h2>
@@ -116,7 +116,6 @@ const Home = () => {
           </div>
         </section>
 
-        {/* CONTACT SECTION */}
         <section id="contact" className="nf-contact-section">
           <div className="nf-contact-card">
             <h2>Contact</h2>

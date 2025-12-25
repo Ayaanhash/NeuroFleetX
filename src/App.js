@@ -1,32 +1,39 @@
-// src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React from "react";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import Home from './pages/home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Unauthorized from './pages/Unauthorized';
+import Home from "./pages/home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Unauthorized from "./pages/Unauthorized";
+import Profile from "./pages/Profile";
 
-import AdminDashboard from './dashboards/AdminDashboard';
-import FleetManagerDashboard from './dashboards/FleetManagerDashboard';
-import DriverDashboard from './dashboards/DriverDashboard';
-import CustomerDashboard from './dashboards/CustomerDashboard';
+import AdminDashboard from "./dashboards/AdminDashboard";
+import FleetManagerDashboard from "./dashboards/FleetManagerDashboard";
+import DriverDashboard from "./dashboards/DriverDashboard";
+import CustomerDashboard from "./dashboards/CustomerDashboard";
 
-import Profile from './pages/Profile';
-import ProtectedRoute from './components/ProtectedRoute';
-import { ROLES } from './utils/authUtils';
+
+import RouteDashboard from "./pages/RouteDashboard";
+import RoutePlanner from "./pages/RoutePlanner";
+import LiveTracking from "./pages/LiveTracking";
+import Reports from "./pages/Reports";
+
+
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ROLES } from "./utils/authUtils";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        {/* Public pages */}
+
+        
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* Profile: any logged-in user can access */}
+        {/* ================= PROFILE ================= */}
         <Route
           path="/profile"
           element={
@@ -36,7 +43,7 @@ const App = () => {
           }
         />
 
-        {/* Dashboards per role */}
+      
         <Route
           path="/admin"
           element={
@@ -73,8 +80,49 @@ const App = () => {
           }
         />
 
-        {/* Fallback */}
+       
+        <Route
+          path="/module3"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.FLEET_MANAGER]}>
+              <RouteDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        
+        <Route
+          path="/plan"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.FLEET_MANAGER]}>
+              <RoutePlanner />
+            </ProtectedRoute>
+          }
+        />
+
+        
+        <Route
+          path="/live-tracking"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.FLEET_MANAGER]}>
+              <LiveTracking />
+            </ProtectedRoute>
+          }
+        />
+
+    
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.FLEET_MANAGER]}>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+
+       
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </Router>
   );
