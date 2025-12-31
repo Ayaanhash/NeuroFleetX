@@ -1,9 +1,15 @@
 package com.neurofleetx.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email")
+    }
+)
 public class User {
 
     @Id
@@ -11,8 +17,13 @@ public class User {
     private Long id;
 
     private String name;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @JsonIgnore   // ✅ VERY IMPORTANT (never send password to frontend)
     private String password;
+
     private String role;
     private String dob;
     private String phone;
@@ -52,7 +63,7 @@ public class User {
         this.password = password;
     }
 
-    // 🔴 THIS IS THE IMPORTANT PART
+    // ✅ Role getter/setter (correct)
     public String getRole() {
         return role;
     }

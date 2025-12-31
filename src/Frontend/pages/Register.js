@@ -1,8 +1,6 @@
-// src/pages/Register.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/services";
-import { ROLES } from "../utils/authUtils";
 import "../styles/auth.css";
 
 const Register = () => {
@@ -12,61 +10,56 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: ROLES.CUSTOMER,
+    role: "CUSTOMER",
   });
 
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setMsg("");
-  setErr("");
-
-  if (form.password !== form.confirmPassword) {
-    setErr("Passwords do not match.");
-    return;
-  }
-
-  try {
-    await authService.register({
-      email: form.email,
-      password: form.password,
-      role: form.role,
-    });
-
-    // If backend call did NOT throw → registration is successful
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setErr("");
-    setMsg("Registration successful! Please login.");
-    setTimeout(() => navigate("/login"), 1000);
+    setMsg("");
 
-  } catch (error) {
-    console.log("Register error:", error.response || error);
-
-    /*
-      IMPORTANT FIX:
-      Sometimes backend returns 200/201 with no JSON body,
-      Axios treats it as error, but user is already saved.
-    */
-    if (
-      error.response &&
-      (error.response.status === 200 || error.response.status === 201)
-    ) {
-      setErr("");
-      setMsg("Registration successful! Please login.");
-      setTimeout(() => navigate("/login"), 1000);
-    } else {
-      setErr("Registration failed. Please try again.");
+    if (form.password !== form.confirmPassword) {
+      setErr("Passwords do not match.");
+      return;
     }
+
+    setLoading(true);
+
+    try {
+      await authService.register({
+        email: form.email,
+        password: form.password,
+        role: form.role,
+      });
+
+      setMsg("Registration successful! Please login.");
+      setErr("");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1200);
+
+    } catch (error) {
+  console.log("Register error:", error);
+
+  if (error.response?.status === 409) {
+    setErr("Registration already done with this email");
+  } else {
+    setErr("Registration failed. Please try again.");
   }
-};
-
-
+} finally {
+  setLoading(false);
+}
+  };
   return (
     <div className="nf-auth-page">
       <div className="nf-auth-card">
@@ -79,7 +72,6 @@ const handleSubmit = async (e) => {
         {msg && <div className="nf-alert nf-alert-success">{msg}</div>}
 
         <form onSubmit={handleSubmit} className="nf-auth-form">
-
           {/* Email */}
           <div className="nf-form-group">
             <label>Email</label>
@@ -125,15 +117,19 @@ const handleSubmit = async (e) => {
               value={form.role}
               onChange={handleChange}
             >
-              <option value={ROLES.ADMIN}>Admin</option>
-              <option value={ROLES.FLEET_MANAGER}>Fleet Manager</option>
-              <option value={ROLES.DRIVER}>Driver</option>
-              <option value={ROLES.CUSTOMER}>Customer</option>
+              <option value="ADMIN">Admin</option>
+              <option value="FLEET_MANAGER">Fleet Manager</option>
+              <option value="DRIVER">Driver</option>
+              <option value="CUSTOMER">Customer</option>
             </select>
           </div>
 
-          <button className="nf-btn-primary" type="submit">
-            Register
+          <button
+            className="nf-btn-primary"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 

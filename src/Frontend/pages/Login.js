@@ -1,47 +1,58 @@
-// src/pages/Login.js
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { authService } from '../services/services';
-import { ROLES } from '../utils/authUtils';
-import '../styles/auth.css';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { authService } from "../services/services";
+import "../styles/auth.css";
 
 const Login = () => {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
-  const [error, setError] = useState('');
+
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ROLE BASED REDIRECT (MATCHES BACKEND EXACTLY)
   const redirectByRole = (role) => {
     switch (role) {
-      case ROLES.ADMIN:
-        return '/admin';
-      case ROLES.FLEET_MANAGER:
-        return '/fleet-manager';
-      case ROLES.DRIVER:
-        return '/driver';
+      case "ADMIN":
+        return "/admin";
+      case "FLEET_MANAGER":
+        return "/fleet-manager";
+      case "DRIVER":
+        return "/driver";
+      case "CUSTOMER":
+        return "/customer";
       default:
-        return '/customer';
+        return "/login";
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const { user } = await authService.login(form);
+      // IMPORTANT FIX: backend returns USER directly
+      const user = await authService.login(form);
+
+      console.log("LOGIN USER:", user); // debug
+      console.log("ROLE:", user.role);  // debug
+
+      // optional: store user
+      localStorage.setItem("user", JSON.stringify(user));
+
       navigate(redirectByRole(user.role), { replace: true });
     } catch (err) {
-      setError(err.message || 'Login failed.');
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -61,8 +72,8 @@ const Login = () => {
           <div className="nf-form-group">
             <label>Email</label>
             <input
-              name="email"
               type="email"
+              name="email"
               value={form.email}
               onChange={handleChange}
               placeholder="you@example.com"
@@ -73,8 +84,8 @@ const Login = () => {
           <div className="nf-form-group">
             <label>Password</label>
             <input
-              name="password"
               type="password"
+              name="password"
               value={form.password}
               onChange={handleChange}
               placeholder="Enter password"
@@ -83,7 +94,7 @@ const Login = () => {
           </div>
 
           <button className="nf-btn-primary" type="submit" disabled={loading}>
-            {loading ? <span className="nf-spinner" /> : 'Login'}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

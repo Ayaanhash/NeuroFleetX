@@ -1,7 +1,10 @@
 // src/dashboards/FleetManagerDashboard.js
 import React, { useState, useEffect } from "react";
-import RouteOptimization from "./RouteOptimization";
-
+import RouteOptimization from "./RouteDashboard";
+import RoutePlanner from "./RoutePlanner";
+import LoadOptimization from "./LoadOptimization";
+import LiveTracking from "./LiveTracking";
+import HistoryReports from "./HistoryReports";
 
 // Charts
 import {
@@ -681,6 +684,34 @@ useEffect(() => {
       </div>
     );
   };
+// ===== MODULE 3 RENDER FUNCTIONS =====
+
+const renderRoutePlanning = () => (
+  <div className="fd-main-content">
+    <RoutePlanner />
+  </div>
+);
+
+
+const renderLoadOptimization = () => (
+  <div className="fd-main-content">
+    <LoadOptimization />
+  </div>
+);
+
+const renderLiveTracking = () => (
+  <div className="fd-main-content">
+    <LiveTracking vehicles={vehicles} />
+  </div>
+);
+
+
+const renderHistoryReports = () => (
+  <div className="fd-main-content">
+    <HistoryReports />
+  </div>
+);
+
 
   const renderProfile = () => (
     <div className="fd-main-content">
@@ -708,21 +739,30 @@ useEffect(() => {
   );
 
   const renderContent = () => {
-    switch (activeTab) {
-      case "overview":
-        return renderOverview();
-      case "vehicles":
-        return renderVehicles();
-      case "map":
-        return renderMap();
-      case "profile":
-        return renderProfile();
-      case "settings":
-        return renderSettings();
-      default:
-        return renderOverview();
-    }
-  };
+  switch (activeTab) {
+    case "overview":
+      return renderOverview();
+    case "vehicles":
+      return renderVehicles();
+    case "map":
+      return renderMap();
+    case "route-planning":
+      return renderRoutePlanning();
+    case "load":
+      return renderLoadOptimization();
+    case "tracking":
+      return renderLiveTracking();
+    case "history":
+      return renderHistoryReports();
+    case "profile":
+      return renderProfile();
+    case "settings":
+      return renderSettings();
+    default:
+      return renderOverview();
+  }
+};
+
 
   // ===== MAIN LAYOUT =====
   return (
@@ -761,6 +801,38 @@ useEffect(() => {
             <span className="fd-nav-icon">🗺️</span>
             <span>Map</span>
           </button>
+          <button
+  className={`fd-nav-item ${activeTab === "route-planning" ? "fd-nav-item-active" : ""}`}
+  onClick={() => setActiveTab("route-planning")}
+>
+  <span className="fd-nav-icon">🧭</span>
+  <span>Route Planning</span>
+</button>
+<button
+  className={`fd-nav-item ${activeTab === "load" ? "fd-nav-item-active" : ""}`}
+  onClick={() => setActiveTab("load")}
+>
+  <span className="fd-nav-icon">📦</span>
+  <span>Load Optimization</span>
+</button>
+
+<button
+  className={`fd-nav-item ${activeTab === "tracking" ? "fd-nav-item-active" : ""}`}
+  onClick={() => setActiveTab("tracking")}
+>
+  <span className="fd-nav-icon">🚚</span>
+  <span>Live Tracking</span>
+</button>
+
+
+<button
+  className={`fd-nav-item ${activeTab === "history" ? "fd-nav-item-active" : ""}`}
+  onClick={() => setActiveTab("history")}
+>
+  <span className="fd-nav-icon">📜</span>
+  <span>History Reports</span>
+</button>
+
 
           <button
             className={`fd-nav-item ${activeTab === "profile" ? "fd-nav-item-active" : ""}`}

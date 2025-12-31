@@ -21,7 +21,7 @@ public class AuthController {
 
     // ========= REGISTER =========
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
 
         User user = new User();
         user.setEmail(request.getEmail());
@@ -29,8 +29,9 @@ public class AuthController {
         user.setGender(request.getGender());
         user.setRole(request.getRole());
 
-        User savedUser = userService.register(user);
-        return ResponseEntity.ok(savedUser);
+        userService.register(user);
+
+        return ResponseEntity.ok("Registration successful");
     }
 
     // ========= LOGIN =========

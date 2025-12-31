@@ -1,69 +1,83 @@
 // src/dashboards/CustomerDashboard.js
-import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
-import Profile from '../pages/Profile';
-import { dashboardService } from '../services/services';
-import '../styles/dashboard.css';
+import React, { useState } from "react";
+import Profile from "../pages/Profile";
+
+import LiveTracking from "./LiveTracking";
+import RoutePlanner from "./RoutePlanner";
+import RouteDashboard from "./RouteDashboard";
+import Report from "./Report";
+
+import "../styles/dashboard.css";
 
 const CustomerDashboard = () => {
-  const [metrics, setMetrics] = useState(null);
-  const [activeView, setActiveView] = useState('dashboard'); // 'dashboard' | 'profile'
+  const [activeView, setActiveView] = useState("liveTracking");
 
-  useEffect(() => {
-    dashboardService.getCustomerMetrics().then(setMetrics);
-  }, []);
+  const renderContent = () => {
+    switch (activeView) {
+      case "liveTracking":
+        return <LiveTracking />;
+      case "routePlanner":
+        return <RoutePlanner />;
+      case "routeDashboard":
+        return <RouteDashboard />;
+      case "report":
+        return <Report />;
+      case "profile":
+        return <Profile onBack={() => setActiveView("liveTracking")} />;
+      default:
+        return <LiveTracking />;
+    }
+  };
 
   return (
     <div className="nf-dashboard-layout">
-      <Navbar onProfileClick={() => setActiveView('profile')} />
+      {/* LEFT SIDEBAR */}
+      <aside className="nf-dashboard-sidebar">
+        <div className="nf-sidebar-header">
+          <h3>Customer</h3>
+          <span>DASHBOARD</span>
+        </div>
 
-      <main className="nf-dashboard-main">
-        {/* DASHBOARD VIEW */}
-        {activeView === 'dashboard' && (
-          <>
-            <header className="nf-dashboard-header">
-              <h2>Customer Dashboard</h2>
-              <p>See your bookings, spend and favourite routes.</p>
-            </header>
+        <nav className="nf-sidebar-menu">
+          <button
+            className={`nf-sidebar-item ${activeView === "liveTracking" ? "active" : ""}`}
+            onClick={() => setActiveView("liveTracking")}
+          >
+            🗺️ Live Tracking
+          </button>
 
-            {!metrics && <div className="nf-loading">Loading metrics...</div>}
+          <button
+            className={`nf-sidebar-item ${activeView === "routePlanner" ? "active" : ""}`}
+            onClick={() => setActiveView("routePlanner")}
+          >
+            🛣️ Route Planner
+          </button>
 
-            {metrics && (
-              <section className="nf-metrics-grid">
-                <div className="nf-metric-card">
-                  <h3>Active Bookings</h3>
-                  <p>{metrics.activeBookings}</p>
-                </div>
-                <div className="nf-metric-card">
-                  <h3>Total Trips</h3>
-                  <p>{metrics.totalTrips}</p>
-                </div>
-                <div className="nf-metric-card">
-                  <h3>Total Spent</h3>
-                  <p>₹ {metrics.totalSpent}</p>
-                </div>
-                <div className="nf-metric-card">
-                  <h3>Amount Saved</h3>
-                  <p>₹ {metrics.amountSaved}</p>
-                </div>
-                <div className="nf-metric-card">
-                  <h3>Upcoming Trips</h3>
-                  <p>{metrics.upcomingTrips}</p>
-                </div>
-                <div className="nf-metric-card">
-                  <h3>Favourite Routes</h3>
-                  <p>{metrics.favouriteRoutes}</p>
-                </div>
-              </section>
-            )}
-          </>
-        )}
+          <button
+            className={`nf-sidebar-item ${activeView === "routeDashboard" ? "active" : ""}`}
+            onClick={() => setActiveView("routeDashboard")}
+          >
+            📊 Route Dashboard
+          </button>
 
-        {/* PROFILE VIEW */}
-        {activeView === 'profile' && (
-          <Profile onBack={() => setActiveView('dashboard')} />
-        )}
-      </main>
+          <button
+            className={`nf-sidebar-item ${activeView === "report" ? "active" : ""}`}
+            onClick={() => setActiveView("report")}
+          >
+            📄 Reports
+          </button>
+
+          <button
+            className={`nf-sidebar-item ${activeView === "profile" ? "active" : ""}`}
+            onClick={() => setActiveView("profile")}
+          >
+            👤 Profile
+          </button>
+        </nav>
+      </aside>
+
+      {/* MAIN CONTENT */}
+      <main className="nf-dashboard-main">{renderContent()}</main>
     </div>
   );
 };

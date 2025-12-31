@@ -1,6 +1,8 @@
 package com.neurofleetx.backend.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.neurofleetx.backend.dto.ProfileUpdateRequest;
 import com.neurofleetx.backend.model.User;
@@ -17,15 +19,21 @@ public class UserService {
 
     // ================= REGISTER =================
     public User register(User user) {
+
+        // Check if email already exists
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email already registered"
+            );
         }
 
+        // Default role if not provided
         if (user.getRole() == null || user.getRole().isBlank()) {
             user.setRole("CUSTOMER");
         }
 
-        // plain password (OK for now)
+        // Plain password for now (OK for project stage)
         user.setPassword(user.getPassword());
 
         return userRepository.save(user);
@@ -33,11 +41,18 @@ public class UserService {
 
     // ================= LOGIN =================
     public User login(String email, String password) {
+
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Invalid email or password"
+                ));
 
         if (!password.equals(user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Invalid email or password"
+            );
         }
 
         return user;
@@ -46,7 +61,10 @@ public class UserService {
     // ================= GET PROFILE =================
     public User getProfile(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
     }
 
     // ================= UPDATE PROFILE =================
