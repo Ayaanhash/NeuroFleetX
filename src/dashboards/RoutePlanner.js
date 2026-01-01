@@ -31,9 +31,9 @@ const LeafletRoute = ({ waypoints, color, opacity = 1, onFound }) => {
       draggableWaypoints: false,
       show: false,
       createMarker: () => null,
-   lineOptions: {
-  styles: [{ color, weight: 5, opacity }],
-},
+      lineOptions: {
+        styles: [{ color, weight: 5, opacity }],
+      },
 
       router: L.Routing.osrmv1({
         serviceUrl: "https://router.project-osrm.org/route/v1",
@@ -52,7 +52,7 @@ const LeafletRoute = ({ waypoints, color, opacity = 1, onFound }) => {
     return () => {
       try {
         map.removeControl(control);
-      } catch {}
+      } catch { }
     };
   }, [map, waypoints, color]);
 
@@ -123,7 +123,7 @@ const RoutePlanner = () => {
   /* ===== COST LOGIC ===== */
   const ratePerKm =
     vehicle === "Truck" ? 12 :
-    vehicle === "Bike" ? 5 : 8;
+      vehicle === "Bike" ? 5 : 8;
 
   /* ===== PLAN TRIP ===== */
   const planTrip = () => {
@@ -138,13 +138,14 @@ const RoutePlanner = () => {
       <div style={styles.sidebar}>
         <h2 style={styles.title}>Route Planner</h2>
 
-        <label>Source</label>
-        <input style={styles.input} onChange={e => setSource(e.target.value)} />
+        <label style={styles.label}>Source</label>
 
-        <label>Destination</label>
-        <input style={styles.input} onChange={e => setDestination(e.target.value)} />
+        <input style={styles.input} placeholder="Enter source" onChange={e => setSource(e.target.value)} />
 
-        <label>Stop (Optional)</label>
+        <label style={styles.label}>Destination</label>
+        <input style={styles.input} placeholder="Enter destination" onChange={e => setDestination(e.target.value)} />
+
+        <label style={styles.label}>Stop (Optional)</label>
         <input
           style={styles.input}
           value={stopInput}
@@ -158,7 +159,7 @@ const RoutePlanner = () => {
           <div key={i} style={styles.stop}>🚏 {s}</div>
         ))}
 
-        <label>Vehicle</label>
+        <label style={styles.label}>Vehicle</label>
         <select style={styles.input} onChange={e => setVehicle(e.target.value)}>
           <option>Car</option>
           <option>Bike</option>
@@ -212,30 +213,30 @@ const RoutePlanner = () => {
         <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: "100%" }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-         {routes && !finalRoute &&
-  Object.entries(routes).map(([k, r]) => (
-    <LeafletRoute
-      key={k}
-      waypoints={r.path}
-      color={r.color}
-      opacity={
-        !selectedRoute || selectedRoute === k ? 1 : 0.25
-      }
-      onFound={(d, t) =>
-        setRouteInfo(prev => ({
-          ...prev,
-          [k]: { distance: d, time: t },
-        }))
-      }
-    />
-))}
+          {routes && !finalRoute &&
+            Object.entries(routes).map(([k, r]) => (
+              <LeafletRoute
+                key={k}
+                waypoints={r.path}
+                color={r.color}
+                opacity={
+                  !selectedRoute || selectedRoute === k ? 1 : 0.25
+                }
+                onFound={(d, t) =>
+                  setRouteInfo(prev => ({
+                    ...prev,
+                    [k]: { distance: d, time: t },
+                  }))
+                }
+              />
+            ))}
 
 
           {finalRoute && (
             <LeafletRoute
               waypoints={finalRoute.path}
               color={finalRoute.color}
-              onFound={() => {}}
+              onFound={() => { }}
             />
           )}
         </MapContainer>
@@ -271,20 +272,27 @@ const styles = {
     marginBottom: 16,
   },
 
+  label: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#0f172a", // dark slate (NOT grey)
+    marginBottom: 6,
+    display: "block",
+  },
 
 
-input: {
-  width: "100%",
-  padding: 12,
-  marginBottom: 12,
-  borderRadius: 10,
-  border: "1px solid #cbd5e1",
-  fontSize: 14,
-  color: "#000000",                 // typed text
-  backgroundColor: "#ffffff",       // IMPORTANT
-  WebkitTextFillColor: "#000000",   // 🔥 MOST IMPORTANT
-  outline: "none",
-},
+  input: {
+    width: "100%",
+    padding: 12,
+    marginBottom: 12,
+    borderRadius: 10,
+    border: "1px solid #cbd5e1",
+    fontSize: 14,
+    color: "#0f172a",                            // typed text
+    backgroundColor: "#ffffff",       // IMPORTANT
+    WebkitTextFillColor: "#0f172a",  // 🔥 MOST IMPORTANT
+    outline: "none",
+  },
 
 
   primaryBtn: {
@@ -313,7 +321,7 @@ input: {
 
   stop: {
     fontSize: 13,
-    color: "#334155",
+    color: "#1e293b",
     marginBottom: 4,
   },
 
