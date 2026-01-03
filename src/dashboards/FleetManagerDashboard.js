@@ -115,7 +115,11 @@ const distanceData = [
   { month: "Mar", distance: 42000 },
   { month: "Apr", distance: 75000 },
 ];
-
+const maintenanceAlerts = [
+  { vehicleId: "Truck 12", issue: "Engine wear high", action: "Schedule service" },
+  { vehicleId: "EV Van 07", issue: "Battery low", action: "Recharge battery" },
+  { vehicleId: "Car 23", issue: "Service overdue", action: "Immediate maintenance" },
+];
 const FleetManagerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [vehicles, setVehicles] = useState(initialVehicles);
@@ -155,27 +159,27 @@ const FleetManagerDashboard = () => {
   const vehiclesDriven = 120;
 
   // Simulate movement for the map markers (optional safe simulation)
-useEffect(() => {
-  const interval = setInterval(() => {
-    setVehicles(prev =>
-      prev.map(v => {
-        const fuelDrop = Math.floor(Math.random() * 3) + 1;
-        const newFuel = Math.max(v.fuelLevel - fuelDrop, 0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVehicles(prev =>
+        prev.map(v => {
+          const fuelDrop = Math.floor(Math.random() * 3) + 1;
+          const newFuel = Math.max(v.fuelLevel - fuelDrop, 0);
 
-        let newStatus = v.status;
-        if (newFuel <= 20) newStatus = "Needs Service";
+          let newStatus = v.status;
+          if (newFuel <= 20) newStatus = "Needs Service";
 
-        return {
-          ...v,
-          fuelLevel: newFuel,
-          status: newStatus,
-        };
-      })
-    );
-  }, 7000); // ✅ 7 seconds
+          return {
+            ...v,
+            fuelLevel: newFuel,
+            status: newStatus,
+          };
+        })
+      );
+    }, 7000); // ✅ 7 seconds
 
-  return () => clearInterval(interval);
-}, []);
+    return () => clearInterval(interval);
+  }, []);
 
 
 
@@ -358,8 +362,32 @@ useEffect(() => {
           </ResponsiveContainer>
         </div>
       </div>
+      {/* ✅ ALERT TABLE — NOW VISIBLE */}
+      <div className="fd-chart-card" style={{ marginTop: 20 }}>
+        <p className="fd-chart-title">Maintenance Alerts</p>
+
+        <table style={{ width: "100%", fontSize: 14 }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "#c7d2fe" }}>
+              <th>Vehicle ID</th>
+              <th>Issue</th>
+              <th>Action Needed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {maintenanceAlerts.map((a, i) => (
+              <tr key={i} style={{ borderTop: "1px solid rgba(148,163,184,0.2)" }}>
+                <td>{a.vehicleId}</td>
+                <td style={{ color: "#f87171", fontWeight: 600 }}>{a.issue}</td>
+                <td>{a.action}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
+
 
   const renderVehicles = () => (
     <div className="fd-main-content">
