@@ -15,7 +15,7 @@ const DASHBOARD_ROUTE = {
 const Profile = () => {
   const navigate = useNavigate();
 
-  // ✅ LOGGED-IN USER (SOURCE OF TRUTH)
+  // 🔐 LOGGED-IN USER (SINGLE SOURCE OF TRUTH)
   const user = getUser();
 
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -23,18 +23,16 @@ const Profile = () => {
 
   const [form, setForm] = useState({
     name: "",
-    email: "",
     dob: "",
     phone: "",
     gender: "Female",
     travelPreferences: "",
     location: "",
-    role: user?.role || "", // 🔒 ROLE LOCKED
+    latitude: null,
+    longitude: null,
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-    latitude: null,
-    longitude: null,
   });
 
   const [msg, setMsg] = useState("");
@@ -42,14 +40,17 @@ const Profile = () => {
 
   // ================= LOAD PROFILE =================
   useEffect(() => {
-    const p = profileService.getProfile();
+    if (!user) {
+      setProfileLoaded(true);
+      return;
+    }
 
-    if (p) {
+    const profile = profileService.getProfile();
+
+    if (profile) {
       setForm((prev) => ({
         ...prev,
-        ...p,
-        role: user?.role || prev.role, // 🔒 DO NOT OVERRIDE ROLE
-        email: user?.email || p.email,
+        ...profile,
       }));
     }
 
@@ -81,6 +82,7 @@ const Profile = () => {
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
+  // ================= INPUT HANDLER =================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -88,8 +90,7 @@ const Profile = () => {
 
   // ================= DASHBOARD NAV =================
   const goBackToDashboard = () => {
-    const role = user?.role;
-    navigate(DASHBOARD_ROUTE[role] || "/");
+    navigate(DASHBOARD_ROUTE[user?.role] || "/");
   };
 
   // ================= SAVE PROFILE =================
@@ -136,15 +137,10 @@ const Profile = () => {
       }
 
       setMsg("Profile updated successfully.");
-
-      setTimeout(goBackToDashboard, 700);
+      setTimeout(goBackToDashboard, 800);
     } catch (error) {
       setErr(error.message || "Failed to update profile.");
     }
-  };
-
-  const handleCancel = () => {
-    goBackToDashboard();
   };
 
   // ================= NO USER =================
@@ -153,9 +149,7 @@ const Profile = () => {
       <div className="nf-auth-page">
         <div className="nf-auth-card">
           <h1 className="nf-auth-title">Profile</h1>
-          <p className="nf-auth-subtitle">
-            Please login to view your profile.
-          </p>
+          <p className="nf-auth-subtitle">Please login to view your profile.</p>
           <Link to="/login" className="nf-btn-primary nf-center-btn">
             Go to Login
           </Link>
@@ -228,7 +222,7 @@ const Profile = () => {
           </div>
 
           <div className="nf-form-actions">
-            <button type="button" className="nf-btn-outline" onClick={handleCancel}>
+            <button type="button" className="nf-btn-outline" onClick={goBackToDashboard}>
               Cancel
             </button>
             <button className="nf-btn-primary" type="submit">

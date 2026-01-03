@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { authService } from "../services/services";
+import { setUser, clearUser } from "../utils/authUtils";
 import "../styles/auth.css";
 
 const Login = () => {
@@ -41,14 +42,20 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // IMPORTANT FIX: backend returns USER directly
+      // 🚨 CLEAR OLD USER (VERY IMPORTANT)
+      clearUser();
+
+      // Backend returns USER object
       const user = await authService.login(form);
 
       console.log("LOGIN USER:", user); // debug
       console.log("ROLE:", user.role);  // debug
 
-      // optional: store user
-      localStorage.setItem("user", JSON.stringify(user));
+      // ✅ SINGLE SOURCE OF TRUTH
+      setUser({
+        email: user.email,
+        role: user.role,
+      });
 
       navigate(redirectByRole(user.role), { replace: true });
     } catch (err) {
