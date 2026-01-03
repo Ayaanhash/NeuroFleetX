@@ -48,18 +48,28 @@ const Register = () => {
         navigate("/login");
       }, 1200);
 
-    } catch (error) {
-  console.log("Register error:", error);
+    } // fixed the display issue
+    catch (error) {
+      console.log("Register error:", error);
 
-  if (error.response?.status === 409) {
-    setErr("Registration already done with this email");
-  } else {
-    setErr("Registration failed. Please try again.");
-  }
-} finally {
-  setLoading(false);
-}
+      const backendMsg =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "";
+
+      if (
+        backendMsg.toLowerCase().includes("already") ||
+        backendMsg.toLowerCase().includes("exists")
+      ) {
+        setErr("Registration already done with this email");
+      } else {
+        setErr("Registration failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <div className="nf-auth-page">
       <div className="nf-auth-card">
